@@ -1,0 +1,23 @@
+{
+  "name": "send-sms",
+  "version": "1.0.0",
+  "description": "IronWorker to send queued SMS to Twilio",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/valet-io/send-sms.git"
+  },
+  "keywords": [
+    "twilio",
+    "ironworker",
+    "sms"
+  ],
+  "author": "Ben Drucker <bvdrucker@gmail.com> (http://www.bendrucker.me/)",
+  "bugs": {
+    "url": "https://github.com/valet-io/send-sms/issues"
+  },
+  "homepage": "https://github.com/valet-io/send-sms"
+}
