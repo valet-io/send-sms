@@ -2,7 +2,7 @@
   "name": "send-sms",
   "version": "1.0.0",
   "description": "IronWorker to send queued SMS to Twilio",
-  "main": "index.js",
+  "main": "./src",
   "scripts": {
     "test": "mocha test"
   },
@@ -19,5 +19,18 @@
   "bugs": {
     "url": "https://github.com/valet-io/send-sms/issues"
   },
-  "homepage": "https://github.com/valet-io/send-sms"
+  "homepage": "https://github.com/valet-io/send-sms",
+  "dependencies": {
+    "bluebird": "~2.3.2",
+    "iron_mq": "~0.2.3",
+    "twilio": "~1.7.0"
+  },
+  "devDependencies": {
+    "chai": "1",
+    "mocha": "1",
+    "proxyquire": "1",
+    "sinon": "1",
+    "sinon-as-promised": "1",
+    "sinon-chai": "2"
+  }
 }
