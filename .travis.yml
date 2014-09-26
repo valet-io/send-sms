@@ -1,0 +1,8 @@
+language: node_js
+node_js:
+- '0.10'
+after_success:
+- sh ./scripts/deploy.sh
+notifications:
+  slack:
+    secure: g1Lft6BZMa+ByKVPd9QBHblrexLiZiVYPBGBEgWTx4tCPLiQ3hlOo3TRiOYWp4vxquYdVEIAdRkfs/v9Zkhzm6ThOVn3aHNcDeXFmO0DfZzCQ3uWkRlWKAwSGfLCKdesuNxCC4Vw1RoKIMOeK2DXzlr82pkDbSBrANJY9gmJh8k=
