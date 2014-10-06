@@ -9,10 +9,12 @@ function run () {
     })
     .then(send.transform)
     .then(send.load)
-    .then(function (message) {
-      if (messages.length) return run();
+    .then(function (messages) {
+      if (messages.length) {
+        return run();
+      }
     });
-};
+}
 
 module.exports = run;
 
