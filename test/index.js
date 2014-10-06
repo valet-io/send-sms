@@ -34,9 +34,7 @@ describe('send-sms', function () {
 
     it('gets 100 messages off the queue', function () {
       var messages = [];
-      sinon.stub(IronMQ.Client.prototype, 'get').yieldsAsync(null, {
-        messages: messages
-      });
+      sinon.stub(IronMQ.Client.prototype, 'get').yieldsAsync(null, messages);
       return send.extract().then(function (msgs) {
         expect(msgs).to.equal(messages);
       });

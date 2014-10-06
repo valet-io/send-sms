@@ -20,8 +20,7 @@ function handleFailed (err) {
 exports.extract = function () {
   return queue.getAsync({
     n: 100
-  })
-  .get('messages');
+  });
 };
 
 exports.transform = function (messages) {
