@@ -8,7 +8,7 @@ function run () {
       console.log('Retrieved %d messages', messages.length);
     })
     .then(send.transform)
-    .then(send.load);
+    .then(send.load)
     .then(function (message) {
       if (messages.length) return run();
     });
