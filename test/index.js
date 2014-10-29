@@ -66,41 +66,101 @@ describe('send-sms', function () {
 
   describe('#load', function () {
 
-    it('sends the message via Twilio and removes it from the queue', function () {
-      var message = {
-        To: '900',
-        From: '800',
-        Body: 'Hello world!'
-      };
-      sinon.stub(twilio, 'sendSms')
+    var message = {
+      To: '900',
+      From: '800',
+      Body: 'Hello world!'
+    };
+
+    beforeEach(function () {
+      sinon.stub(IronMQ.Client.prototype, 'del').yieldsAsync(null);
+      sinon.stub(IronMQ.Client.prototype, 'post').yieldsAsync(null);
+      sinon.stub(twilio, 'sendSms');
+    });
+
+    afterEach(function () {
+      IronMQ.Client.prototype.del.restore();
+      IronMQ.Client.prototype.post.restore();
+      twilio.sendSms.restore();
+    });
+
+    it('sends the message via Twilio', function () {
+      twilio.sendSms
         .withArgs(message)
         .resolves({});
-      sinon.stub(IronMQ.Client.prototype, 'del').yieldsAsync(null);
       return send.load([{
         id: 1,
-        message: message
+        twilio: message
       }])
       .then(function () {
-        expect(IronMQ.Client.prototype.del).to.have.been.calledWith(1);
-      })
-      .finally(function () {
-        twilio.sendSms.restore();
-        IronMQ.Client.prototype.del.restore();
+        expect(twilio.sendSms).to.have.been.calledWith(message);
       });
     });
 
-    it('logs Twilio errors and continues', function () {
-      var err = {};
-      sinon.stub(twilio, 'sendSms')
+    it('deletes the message off the queue', function () {
+      twilio.sendSms
+        .withArgs(message)
+        .resolves({});
+      return send.load([{
+        id: 1,
+        twilio: message
+      }])
+      .then(function () {
+        expect(IronMQ.Client.prototype.del)
+          .to.have.been.calledWith(1);
+      });
+    });
+
+    it('logs invalid number errors to a queue', function () {
+      var err = new Error();
+      err.status = 400;
+      err.code = 21211;
+      twilio.sendSms
+        .withArgs(message)
         .rejects(err);
-      sinon.stub(IronMQ.Client.prototype, 'del').yieldsAsync(null);
+      return send.load([{
+        id: 1,
+        twilio: message
+      }])
+      .then(function () {
+        expect(IronMQ.Client.prototype.post).to.have.been.calledWith(JSON.stringify({
+          type: 'invalid_number',
+          to: '900',
+          raw: err
+        }));
+      });
+    });
+
+    it('logs blacklist errors to a queue', function () {
+      var err = new Error();
+      err.status = 400;
+      err.code = 21610;
+      twilio.sendSms
+        .withArgs(message)
+        .rejects(err);
+      return send.load([{
+        id: 1,
+        twilio: message
+      }])
+      .then(function () {
+        expect(IronMQ.Client.prototype.post).to.have.been.calledWith(JSON.stringify({
+          type: 'blacklist',
+          to: '900',
+          raw: err
+        }));
+      });
+    });
+
+    it('logs other errors', function () {
+      var err = new Error();
+      twilio.sendSms
+        .rejects(err);
       sinon.stub(console, 'log');
       return send.load([{
         id: 1
       }])
       .then(function () {
         expect(console.log).to.have.been.calledWith(err);
-        expect(IronMQ.Client.prototype.del).to.have.been.calledWith(1);
       })
       .finally(function () {
         console.log.restore();
