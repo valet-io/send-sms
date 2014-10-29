@@ -5,4 +5,4 @@ after_success:
 - sh ./scripts/deploy.sh
 notifications:
   slack:
-    secure: g1Lft6BZMa+ByKVPd9QBHblrexLiZiVYPBGBEgWTx4tCPLiQ3hlOo3TRiOYWp4vxquYdVEIAdRkfs/v9Zkhzm6ThOVn3aHNcDeXFmO0DfZzCQ3uWkRlWKAwSGfLCKdesuNxCC4Vw1RoKIMOeK2DXzlr82pkDbSBrANJY9gmJh8k=
+    secure: jWqLc/ppF5XK10zPo1II/fNFr561CDr4FfFv3J07j5DQR4uiwHe5cD5alHjNPGQta006fTk2eMRkyJ5kAJp60zr13d0ca8bIe/Nerpnl1cw91+t4tT9ZKFQq6Eimqf9wYjS2EHlW/+PH+ctk65z87ffelkdH1+vFXaLWY1VQdv8=
