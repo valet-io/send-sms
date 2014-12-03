@@ -4,7 +4,6 @@ var Promise  = require('bluebird');
 var Pool     = require('./pool');
 var clients  = require('./clients');
 var twilio   = clients.twilio;
-var messages = clients.messasges;
 var errors   = clients.errors;
 
 exports.prepare = function () {
@@ -12,13 +11,13 @@ exports.prepare = function () {
 };
 
 exports.extract = function () {
-  return messages.getAsync({
+  return clients.messages.getAsync({
     n: 100
   });
 };
 
 exports.transform = function (messages) {
-  return messages.map(function (message) {
+  return Promise.map(messages, function (message) {
     return {
       id: message.id,
       body: JSON.parse(message.body)
@@ -73,7 +72,7 @@ exports.load = function (messages) {
         console.log(err);
       })
       .finally(function () {
-        return messages.delAsync(message.id);
+        return clients.messages.delAsync(message.id);
       });
   });
 };
