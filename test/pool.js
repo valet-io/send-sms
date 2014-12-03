@@ -145,3 +145,12 @@ describe('#acquire', function () {
   });
 
 });
+
+describe('#randomSid', function () {
+
+  it('selects a random SID from the pool', function () {
+    pool.set('rand', 'num');
+    expect(pool.randomSid()).to.equal('rand');
+  });
+
+});
