@@ -10,17 +10,23 @@ function Pool () {
 }
 
 Pool.prototype.fill = function () {
-  return Promise.resolve(twilio.incomincomingPhoneNumbers.list())
-    .get('numbers')
-    .bind(this)
-    .each(function (number) {
-      this.numbers[number.Sid] = number.PhoneNumber;
-    })
-    .return(this);
+  return Promise.resolve(twilio.incomingPhoneNumbers.list({
+    PageSize: 1000 
+  }))
+  .get('incoming_phone_numbers')
+  .bind(this)
+  .each(function (number) {
+    this.set(number.sid, number.phone_number);
+  })
+  .return(this);
 };
 
 Pool.prototype.get = function (sid) {
   return this.numbers[sid];
+};
+
+Pool.prototype.set = function (sid, value) {
+  return (this.numbers[sid] = value);
 };
 
 Pool.prototype.acquire = function (toNumber) {

@@ -8,7 +8,7 @@ var config = {
     project_id: 'p'
   },
   twilio: {
-    sid: 's',
+    sid: 'accSid',
     token: 't'
   },
   from: '800'
