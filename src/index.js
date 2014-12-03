@@ -1,31 +1,13 @@
 'use strict';
 
-var Promise = require('bluebird');
-var Twilio  = require('twilio');
-var IronMQ  = require('iron_mq');
-
-var config  = require('./config');
-
-Promise.promisifyAll(IronMQ.Client.prototype);
-
-var twilio = new Twilio.RestClient(config.twilio.sid, config.twilio.token);
-var queue = new IronMQ.Client({
-  token: config.iron.token,
-  project_id: config.iron.project_id,
-  queue_name: 'sms-messages'
-});
-var errQueue = new IronMQ.Client({
-  token: config.iron.token,
-  project_id: config.iron.project_id,
-  queue_name: 'sms-errors'
-});
-
-function handleFailed (err) {
-  console.log(err);
-}
+var Promise  = require('bluebird');
+var clients  = require('./clients');
+var twilio   = clients.twilio;
+var messages = clients.messasges;
+var errors   = clients.errors;
 
 exports.extract = function () {
-  return queue.getAsync({
+  return messages.getAsync({
     n: 100
   });
 };
@@ -68,7 +50,7 @@ exports.load = function (messages) {
   return Promise.map(messages, function (message) {
     return Promise.resolve(twilio.sendSms(message.twilio))
       .catch(is400, function (err) {
-        return errQueue.postAsync(JSON.stringify({
+        return errors.postAsync(JSON.stringify({
           type: errType(err.code),
           to: message.twilio.To,
           raw: err
@@ -78,7 +60,7 @@ exports.load = function (messages) {
         console.log(err);
       })
       .finally(function () {
-        return queue.delAsync(message.id);
+        return messages.delAsync(message.id);
       });
   });
 };
