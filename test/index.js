@@ -4,8 +4,8 @@ var _ = require('lodash');
 
 var config = {
   iron: {
-    token: 't',
-    project_id: 'p'
+    token: 'ironTok',
+    project_id: 'ironProj'
   },
   twilio: {
     sid: 'accSid',

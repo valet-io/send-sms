@@ -1,6 +1,7 @@
 'use strict';
 
 var expect = require('chai').expect;
+var sinon  = require('sinon');
 var nock   = require('nock');
 var Pool   = require('../src/pool');
 
@@ -63,6 +64,83 @@ describe('#fill', function () {
       .then(function (pool) {
         expect(pool.get('PN1234')).to.equal('+12125551234');
         expect(pool.get('PN5678')).to.equal('+17185556789');
+      });
+  });
+
+});
+
+describe('#acquire', function () {
+
+  var cache;
+  before(function () {
+    cache = nock('https://cache-aws-us-east-1.iron.io');
+  });
+  afterEach(function () {
+    cache.done();
+  });
+  after(function () {
+    nock.cleanAll();
+  });
+
+  it('can acquire a from number for a mapped destination', function () {
+    cache
+      .get('/1/projects/ironProj/caches/sms-mappings/items/%2B12125551234?oauth=ironTok')
+      .reply(200, {
+        cache: 'sms-mappings',
+        value: 'theSid'
+      });
+    pool.set('theSid', 'theFromNumber');
+    return pool.acquire('+12125551234')
+      .then(function (fromNumber) {
+        expect(fromNumber).to.equal('theFromNumber');
+      });
+  });
+
+  it('destroys and recreates the mapping when the from number is not in the pool', function () {
+    cache
+      .get('/1/projects/ironProj/caches/sms-mappings/items/%2B12125551234?oauth=ironTok')
+      .reply(200, {
+        cache: 'sms-mappings',
+        value: 'theSid'
+      });
+    cache
+      .delete('/1/projects/ironProj/caches/sms-mappings/items/%2B12125551234?oauth=ironTok')
+      .reply(200, {
+        msg: 'Deleted.'
+      });
+    cache
+      .put('/1/projects/ironProj/caches/sms-mappings/items/%2B12125551234?oauth=ironTok', {
+        value: 'randSid'
+      })
+      .reply(200, {
+        msg: 'Stored.'
+      });
+    sinon.stub(pool, 'randomSid').returns('randSid');
+    pool.set('randSid', 'randFromNumber');
+    return pool.acquire('+12125551234')
+      .then(function (fromNumber) {
+        expect(fromNumber).to.equal('randFromNumber');
+      });
+  });
+
+  it('can acquire a mapping for a new destination', function () {
+    cache
+      .get('/1/projects/ironProj/caches/sms-mappings/items/%2B12125551234?oauth=ironTok')
+      .reply(404, {
+        msg: 'Key not found.'
+      });
+    cache
+      .put('/1/projects/ironProj/caches/sms-mappings/items/%2B12125551234?oauth=ironTok', {
+        value: 'randSid'
+      })
+      .reply(200, {
+        msg: 'Stored.'
+      });
+    sinon.stub(pool, 'randomSid').returns('randSid');
+    pool.set('randSid', 'randFromNumber');
+    return pool.acquire('+12125551234')
+      .then(function (fromNumber) {
+        expect(fromNumber).to.equal('randFromNumber');
       });
   });
 

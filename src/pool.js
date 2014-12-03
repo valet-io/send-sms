@@ -30,6 +30,7 @@ Pool.prototype.set = function (sid, value) {
 };
 
 Pool.prototype.acquire = function (toNumber) {
+  toNumber = encodeURIComponent(toNumber);
   return cache.getAsync('sms-mappings', toNumber)
     .get('value')
     .bind(this)
