@@ -9,7 +9,7 @@ var config = {
   },
   twilio: {
     sid: 'accSid',
-    token: 't'
+    token: 'twTok'
   }
 };
 
@@ -21,4 +21,8 @@ describe('Pipeline', function () {
 
 describe('Pool', function () {
   require('./pool');
+});
+
+describe('Runner (Integration)', function () {
+  require('./runner');
 });
