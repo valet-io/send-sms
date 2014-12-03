@@ -138,6 +138,26 @@ describe('#load', function () {
     });
   });
 
+  it('logs unknown twilio error codes to a queue', function () {
+    var err = new Error();
+    err.status = 400;
+    err.code = 42;
+    clients.twilio.sendSms
+      .withArgs(message)
+      .rejects(err);
+    return pipeline.load([{
+      id: 1,
+      twilio: message
+    }])
+    .then(function () {
+      expect(clients.errors.postAsync).to.have.been.calledWith(JSON.stringify({
+        type: 'unknown',
+        to: '900',
+        raw: err
+      }));
+    });
+  });
+
   it('logs other errors', function () {
     var err = new Error();
     clients.twilio.sendSms
