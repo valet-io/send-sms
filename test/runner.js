@@ -1,8 +1,12 @@
 'use strict';
 
-var nock   = require('nock');
-var runner = require('../');
-var qs     = require('qs');
+var sinon    = require('sinon');
+var expect   = require('chai').use(require('sinon-chai')).expect;
+var nock     = require('nock');
+var qs       = require('qs');
+var runner   = require('../');
+var pipeline = require('../src/pipeline');
+var Pool     = require('../src/pool');
 
 var mappings, messages, twilio;
 before(function () {
@@ -69,5 +73,10 @@ it('delivers to a given destination with the same source number', function () {
     .reply(200, {
       messages: []
     });
-  return runner.start();
+  sinon.spy(pipeline, 'extract')
+  return runner.start()
+    .then(function () {
+      expect(pipeline.extract).to.have.been.calledTwice;
+      expect(pipeline.extract).to.have.always.been.calledOn(sinon.match.instanceOf(Pool));
+    });
 });

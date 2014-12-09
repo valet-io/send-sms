@@ -13,7 +13,7 @@ function run () {
     .then(pipeline.load)
     .then(function (messages) {
       if (messages.length) {
-        return run(this);
+        return run.call(this);
       }
     });
 }
