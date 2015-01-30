@@ -68,11 +68,11 @@ exports.load = function (messages) {
           raw: err
         }));
       })
-      .catch(function (err) {
-        console.log(err);
-      })
-      .finally(function () {
+      .then(function () {
         return clients.messages.delAsync(message.id);
+      })
+      .catch(function (err) {
+        console.error(err);
       });
   });
 };

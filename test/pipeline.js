@@ -162,12 +162,12 @@ describe('#load', function () {
     var err = new Error();
     clients.twilio.sendSms
       .rejects(err);
-    sandbox.stub(console, 'log');
+    sandbox.stub(console, 'error');
     return pipeline.load([{
       id: 1
     }])
     .then(function () {
-      expect(console.log).to.have.been.calledWith(err);
+      expect(console.error).to.have.been.calledWith(err);
     });
   });
 
